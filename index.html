@@ -83,6 +83,34 @@
             box-shadow: 0 0 10px var(--neon-green);
         }
 
+        /* Estilos da Pesquisa e Autocomplete */
+        #searchInput {
+            background-color: rgba(13, 13, 26, 0.5);
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-green);
+        }
+        #searchInput::placeholder {
+            color: var(--neon-blue);
+            opacity: 0.6;
+        }
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 10px var(--neon-purple);
+        }
+        .autocomplete-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            background-color: rgba(13, 13, 26, 0.8);
+            color: var(--neon-green);
+            transition: background-color 0.2s;
+            border-top: 1px solid var(--neon-blue);
+        }
+        .autocomplete-item:hover {
+            background-color: var(--neon-purple);
+            color: white;
+        }
+
         /* Classes para controlar a visibilidade */
         .page {
             display: none;
@@ -96,10 +124,24 @@
 
     <!-- Header / HUD Fixo -->
     <header class="fixed top-0 left-0 right-0 z-50 p-4">
-        <nav class="container mx-auto hud-border rounded-xl px-6 py-3 flex justify-between items-center">
+        <nav class="container mx-auto hud-border rounded-xl px-4 sm:px-6 py-3 flex justify-between items-center gap-4">
             <a href="#" onclick="showPage('gallery')" class="text-2xl font-bold tracking-widest holographic-text">MIV</a>
-            <a href="#" onclick="showPage('gallery')" class="nav-link text-gray-300 hover:text-white hover:drop-shadow-[0_0_5px_var(--neon-blue)] transition-all">
-                <i class="fa-solid fa-arrow-left mr-2"></i><span id="nav-back-text">Voltar ao Site Principal</span>
+            
+            <!-- Botão de Pesquisa Inteligente com Autocomplete -->
+            <div class="flex-grow flex justify-center px-2 sm:px-4">
+                <div id="search-container" class="relative w-full max-w-lg">
+                    <input type="text" id="searchInput" placeholder="Pesquisar no acervo..." class="w-full rounded-lg py-2 pl-4 pr-10 text-white placeholder-gray-500 transition-all">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-neon-blue">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <div id="autocomplete-results" class="absolute left-0 right-0 top-full mt-2 hud-border rounded-lg z-10 overflow-hidden hidden">
+                        <!-- As sugestões aparecerão aqui via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <a href="#" onclick="showPage('gallery')" class="nav-link text-gray-300 hover:text-white hover:drop-shadow-[0_0_5px_var(--neon-blue)] transition-all flex-shrink-0">
+                <i class="fa-solid fa-arrow-left mr-2"></i><span id="nav-back-text" class="hidden sm:inline">Voltar ao Site Principal</span>
             </a>
         </nav>
     </header>
@@ -111,11 +153,11 @@
             <div class="container mx-auto px-4">
                 <h1 class="text-5xl md:text-7xl font-black text-center mb-16 holographic-text">Galeria do Acervo</h1>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12">
+                <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12">
 
                     <!-- Card: Atari 2600 -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=Atari+2600" alt="Imagem do Atari 2600" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Atari 2600</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -123,13 +165,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 2ª Geração</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 1977</p>
                             </div>
-                            <button onclick="showPage('item-atari2600')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-atari2600')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
                     
                     <!-- Card: NES -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=NES" alt="Imagem do NES" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Nintendo Entertainment System</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -137,13 +179,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 3ª Geração (8-bit)</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 1983</p>
                             </div>
-                            <button onclick="showPage('item-nes')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-nes')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
 
                     <!-- Card: Master System -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=Master+System" alt="Imagem do Master System" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Sega Master System</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -151,13 +193,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 3ª Geração (8-bit)</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 1985</p>
                             </div>
-                            <button onclick="showPage('item-mastersystem')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-mastersystem')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
 
                     <!-- Card: Mega Drive -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=Mega+Drive" alt="Imagem do Mega Drive" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Sega Mega Drive</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -165,13 +207,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 4ª Geração (16-bit)</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 1988</p>
                             </div>
-                            <button onclick="showPage('item-megadrive')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-megadrive')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
 
                     <!-- Card: Super Nintendo -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=Super+Nintendo" alt="Imagem do Super Nintendo" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Super Nintendo</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -179,13 +221,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 4ª Geração (16-bit)</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 1990</p>
                             </div>
-                            <button onclick="showPage('item-snes')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-snes')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
 
                     <!-- Card: PlayStation -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=PlayStation" alt="Imagem do PlayStation" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Sony PlayStation</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -193,13 +235,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 5ª Geração (32-bit)</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 1994</p>
                             </div>
-                            <button onclick="showPage('item-ps1')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-ps1')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
 
                     <!-- Card: Nintendo 64 -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=Nintendo+64" alt="Imagem do Nintendo 64" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Nintendo 64</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -207,13 +249,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 5ª Geração (64-bit)</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 1996</p>
                             </div>
-                            <button onclick="showPage('item-n64')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-n64')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
 
                     <!-- Card: Dreamcast -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=Dreamcast" alt="Imagem do Dreamcast" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Sega Dreamcast</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -221,13 +263,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 6ª Geração</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 1998</p>
                             </div>
-                            <button onclick="showPage('item-dreamcast')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-dreamcast')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
 
                     <!-- Card: PlayStation 2 -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=PlayStation+2" alt="Imagem do PlayStation 2" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">PlayStation 2</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -235,13 +277,13 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 6ª Geração</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 2000</p>
                             </div>
-                            <button onclick="showPage('item-ps2')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-ps2')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
                     
                     <!-- Card: Xbox -->
                     <div class="item-card">
-                        <div class="hud-border rounded-lg p-4 flex flex-col">
+                        <div class="hud-border rounded-lg p-4 flex flex-col h-full">
                             <img src="https://placehold.co/600x400/1a1a2e/E0E0E0?text=Xbox" alt="Imagem do Xbox" class="w-full h-48 rounded-md object-cover mb-4">
                             <h3 class="item-title text-2xl font-bold mb-3">Microsoft Xbox</h3>
                             <div class="text-sm space-y-2 mb-4 flex-grow">
@@ -249,7 +291,7 @@
                                 <p><i class="fa-solid fa-gamepad w-5 text-neon-blue"></i> <strong>Geração:</strong> 6ª Geração</p>
                                 <p><i class="fa-solid fa-calendar-days w-5 text-neon-blue"></i> <strong>Lançamento:</strong> 2001</p>
                             </div>
-                            <button onclick="showPage('item-xbox')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase">Explorar Item</button>
+                            <button onclick="showPage('item-xbox')" class="explore-btn w-full text-center font-bold py-3 px-4 rounded-lg uppercase mt-auto">Explorar Item</button>
                         </div>
                     </div>
 
@@ -527,7 +569,7 @@
                 </section>
                 <section class="hud-border rounded-lg p-8 mb-16">
                     <h2 class="text-3xl font-bold mb-4">A Atitude dos 16-bit</h2>
-                    <p class="text-gray-300 leading-relaxed">Com o slogan "Genesis does what Nintendon't", o Mega Drive (Genesis na América do Norte) chegou com uma atitude rebelde e marketing agressivo. Prometendo "Blast Processing" para jogos mais rápidos e uma imagem mais "cool", ele deu início à famosa "guerra dos consoles" dos anos 90. Foi o lar de Sonic the Hedgehog, o mascote veloz criado para competir diretamente com Mario, e definiu uma era de rivalidade intensa e inovação.</p>
+                    <p class="text-gray-300 leading-relaxed">Com o slogan "Genesis does what Nintendon't", o Mega Drive (Genesis na América do Norte) chegou com uma atitude rebelde e marketing agressivo. Prometendo "Blast Processing" para jogos mais rápidos e uma imagem más "cool", ele deu início à famosa "guerra dos consoles" dos anos 90. Foi o lar de Sonic the Hedgehog, o mascote veloz criado para competir diretamente com Mario, e definiu uma era de rivalidade intensa e inovação.</p>
                     <h3 class="text-2xl font-bold mt-8 mb-4">Legado</h3>
                     <p class="text-gray-300 leading-relaxed">O Mega Drive consolidou a Sega como uma gigante da indústria. Sua biblioteca de jogos é repleta de clássicos de ação e arcade, como a série "Streets of Rage". A estratégia de marketing focada no público adolescente e a rivalidade com a Nintendo não apenas venderam consoles, mas também ajudaram a moldar a cultura gamer como a conhecemos hoje.</p>
                 </section>
@@ -1058,46 +1100,149 @@
     </footer>
 
     <script>
-        // Objeto para guardar a página ativa
+        // Objeto para guardar o estado da aplicação
         const state = {
-            currentPage: 'gallery'
+            currentPage: 'gallery',
+            galleryItems: []
         };
 
         // Função para mostrar uma página e esconder as outras
         function showPage(pageId) {
-            // Esconde todas as páginas
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-
-            // Mostra a página desejada
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
                 targetPage.classList.add('active');
                 state.currentPage = pageId;
-                window.scrollTo(0, 0); // Rola para o topo da página
+                window.scrollTo(0, 0);
             }
 
-            // Atualiza o texto do botão de voltar
             const backButtonText = document.getElementById('nav-back-text');
+            const searchContainer = document.getElementById('search-container');
             if (pageId === 'gallery') {
-                backButtonText.textContent = 'Voltar ao Site Principal';
+                searchContainer.style.visibility = 'visible';
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput.value) {
+                    searchInput.value = '';
+                    filterItems('');
+                }
+                backButtonText.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i><span class="hidden sm:inline">Voltar ao Site Principal</span>';
             } else {
-                backButtonText.textContent = 'Voltar ao Acervo';
+                searchContainer.style.visibility = 'hidden';
+                backButtonText.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i><span class="hidden sm:inline">Voltar ao Acervo</span>';
             }
         }
 
-        // Função para mudar a imagem principal na galeria de detalhes
+        // Função para mudar a imagem principal
         function changeImage(consoleId, newSrc) {
             const mainImage = document.getElementById(`main-image-${consoleId}`);
-            if (mainImage) {
-                mainImage.src = newSrc;
-            }
+            if (mainImage) mainImage.src = newSrc;
         }
 
-        // Garante que a galeria seja a página inicial ao carregar
+        // Função para filtrar os itens da galeria
+        function filterItems(query) {
+            const galleryGrid = document.getElementById('gallery-grid');
+            const lowerCaseQuery = query.toLowerCase();
+            // Regex para encontrar palavras que começam com a query
+            const queryRegex = new RegExp(`\\b${lowerCaseQuery}`, 'i');
+            let foundItems = 0;
+
+            state.galleryItems.forEach(item => {
+                const itemText = item.textContent.toLowerCase();
+                const card = item.closest('.item-card');
+                
+                // Mostra o item se alguma palavra começar com a query
+                if (queryRegex.test(itemText)) {
+                    card.style.display = 'block';
+                    foundItems++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            let noResultsMsg = document.getElementById('noResultsMessage');
+            if (foundItems === 0 && query.length > 0) {
+                if (!noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.id = 'noResultsMessage';
+                    noResultsMsg.className = 'text-center text-2xl text-neon-purple col-span-full';
+                    galleryGrid.appendChild(noResultsMsg);
+                }
+                noResultsMsg.textContent = `Nenhum item encontrado para "${query}"`;
+            } else {
+                noResultsMsg?.remove();
+            }
+        }
+        
+        // Função para lidar com a pesquisa e o autocomplete
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const autocompleteResults = document.getElementById('autocomplete-results');
+
+            const handleInput = () => {
+                const query = searchInput.value.toLowerCase();
+                filterItems(query); // Filtra a grade em tempo real
+
+                autocompleteResults.innerHTML = '';
+                if (query.length === 0) {
+                    autocompleteResults.classList.add('hidden');
+                    return;
+                }
+
+                const queryRegex = new RegExp(`\\b${query}`, 'i');
+                const matchedItems = state.galleryItems.filter(item => 
+                    queryRegex.test(item.querySelector('.item-title').textContent)
+                );
+
+                // Ordena os resultados: primeiro os que começam com a query, depois alfabeticamente
+                matchedItems.sort((a, b) => {
+                    const titleA = a.querySelector('.item-title').textContent.toLowerCase();
+                    const titleB = b.querySelector('.item-title').textContent.toLowerCase();
+
+                    const aStartsWith = titleA.startsWith(query);
+                    const bStartsWith = titleB.startsWith(query);
+
+                    if (aStartsWith && !bStartsWith) return -1; // A vem primeiro
+                    if (!aStartsWith && bStartsWith) return 1;  // B vem primeiro
+
+                    // Se ambos começam (ou não), ordena alfabeticamente
+                    return titleA.localeCompare(titleB);
+                });
+
+                if (matchedItems.length > 0) {
+                    matchedItems.forEach(item => {
+                        const title = item.querySelector('.item-title').textContent;
+                        const suggestionDiv = document.createElement('div');
+                        suggestionDiv.className = 'autocomplete-item';
+                        suggestionDiv.textContent = title;
+                        suggestionDiv.onclick = () => {
+                            searchInput.value = title;
+                            autocompleteResults.classList.add('hidden');
+                            filterItems(title.toLowerCase());
+                        };
+                        autocompleteResults.appendChild(suggestionDiv);
+                    });
+                    autocompleteResults.classList.remove('hidden');
+                } else {
+                    autocompleteResults.classList.add('hidden');
+                }
+            };
+
+            searchInput.addEventListener('input', handleInput);
+            searchInput.addEventListener('focus', handleInput);
+            document.addEventListener('click', (e) => {
+                if (!document.getElementById('search-container').contains(e.target)) {
+                    autocompleteResults.classList.add('hidden');
+                }
+            });
+        }
+
+        // Inicialização quando o DOM estiver pronto
         document.addEventListener('DOMContentLoaded', () => {
+            // Guarda os dados dos itens para a pesquisa
+            state.galleryItems = Array.from(document.querySelectorAll('#gallery .item-card'));
+            
             showPage('gallery');
+            setupSearch();
         });
     </script>
 </body>

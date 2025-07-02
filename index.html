@@ -84,7 +84,7 @@
         }
 
         /* Estilos da Pesquisa e Autocomplete */
-        #searchInput {
+        #searchInput, #sort-select {
             background-color: rgba(13, 13, 26, 0.5);
             border: 2px solid var(--neon-blue);
             color: var(--neon-green);
@@ -93,7 +93,7 @@
             color: var(--neon-blue);
             opacity: 0.6;
         }
-        #searchInput:focus {
+        #searchInput:focus, #sort-select:focus {
             outline: none;
             border-color: var(--neon-purple);
             box-shadow: 0 0 10px var(--neon-purple);
@@ -151,8 +151,22 @@
         <!-- PÁGINA DA GALERIA -->
         <div id="gallery" class="page active">
             <div class="container mx-auto px-4">
-                <h1 class="text-5xl md:text-7xl font-black text-center mb-16 holographic-text">Galeria do Acervo</h1>
+                <h1 class="text-5xl md:text-7xl font-black text-center mb-8 holographic-text">Galeria do Acervo</h1>
                 
+                <!-- Controles de Ordenação -->
+                <div class="flex justify-end mb-8">
+                    <div class="relative">
+                        <select id="sort-select" class="hud-border appearance-none rounded-lg py-2 pl-4 pr-10 text-white focus:outline-none cursor-pointer">
+                            <option value="date-asc">Mais Antigos</option>
+                            <option value="date-desc">Mais Novos</option>
+                            <option value="alpha-asc">Ordem Alfabética (A-Z)</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neon-blue">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="gallery-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12">
 
                     <!-- Card: Atari 2600 -->
@@ -1142,7 +1156,6 @@
         function filterItems(query) {
             const galleryGrid = document.getElementById('gallery-grid');
             const lowerCaseQuery = query.toLowerCase();
-            // Regex para encontrar palavras que começam com a query
             const queryRegex = new RegExp(`\\b${lowerCaseQuery}`, 'i');
             let foundItems = 0;
 
@@ -1150,7 +1163,6 @@
                 const itemText = item.textContent.toLowerCase();
                 const card = item.closest('.item-card');
                 
-                // Mostra o item se alguma palavra começar com a query
                 if (queryRegex.test(itemText)) {
                     card.style.display = 'block';
                     foundItems++;
@@ -1180,7 +1192,7 @@
 
             const handleInput = () => {
                 const query = searchInput.value.toLowerCase();
-                filterItems(query); // Filtra a grade em tempo real
+                filterItems(query); 
 
                 autocompleteResults.innerHTML = '';
                 if (query.length === 0) {
@@ -1193,18 +1205,13 @@
                     queryRegex.test(item.querySelector('.item-title').textContent)
                 );
 
-                // Ordena os resultados: primeiro os que começam com a query, depois alfabeticamente
                 matchedItems.sort((a, b) => {
                     const titleA = a.querySelector('.item-title').textContent.toLowerCase();
                     const titleB = b.querySelector('.item-title').textContent.toLowerCase();
-
                     const aStartsWith = titleA.startsWith(query);
                     const bStartsWith = titleB.startsWith(query);
-
-                    if (aStartsWith && !bStartsWith) return -1; // A vem primeiro
-                    if (!aStartsWith && bStartsWith) return 1;  // B vem primeiro
-
-                    // Se ambos começam (ou não), ordena alfabeticamente
+                    if (aStartsWith && !bStartsWith) return -1;
+                    if (!aStartsWith && bStartsWith) return 1;
                     return titleA.localeCompare(titleB);
                 });
 
@@ -1236,13 +1243,58 @@
             });
         }
 
+        // Função para ordenar os itens da galeria
+        function sortItems(criteria) {
+            const galleryGrid = document.getElementById('gallery-grid');
+            // Usamos state.galleryItems que já contém os elementos originais
+            const itemsToSort = [...state.galleryItems];
+
+            itemsToSort.sort((a, b) => {
+                // Extrai o título para ordenação alfabética
+                const titleA = a.querySelector('.item-title').textContent.trim();
+                const titleB = b.querySelector('.item-title').textContent.trim();
+
+                // Extrai o ano de lançamento para ordenação por data
+                const yearTextA = Array.from(a.querySelectorAll('p')).find(p => p.textContent.includes('Lançamento:')).textContent;
+                const yearTextB = Array.from(b.querySelectorAll('p')).find(p => p.textContent.includes('Lançamento:')).textContent;
+                
+                // Usa regex para encontrar o ano de 4 dígitos
+                const yearA = parseInt(yearTextA.match(/\d{4}/)[0]);
+                const yearB = parseInt(yearTextB.match(/\d{4}/)[0]);
+
+                switch (criteria) {
+                    case 'date-asc':
+                        return yearA - yearB; // Mais antigo primeiro
+                    case 'date-desc':
+                        return yearB - yearA; // Mais novo primeiro
+                    case 'alpha-asc':
+                        return titleA.localeCompare(titleB); // Ordem alfabética
+                    default:
+                        return 0;
+                }
+            });
+
+            // Limpa a grade e adiciona os itens ordenados
+            galleryGrid.innerHTML = '';
+            itemsToSort.forEach(item => galleryGrid.appendChild(item));
+        }
+
         // Inicialização quando o DOM estiver pronto
         document.addEventListener('DOMContentLoaded', () => {
-            // Guarda os dados dos itens para a pesquisa
-            state.galleryItems = Array.from(document.querySelectorAll('#gallery .item-card'));
+            // Guarda os dados dos itens para a pesquisa e ordenação
+            state.galleryItems = Array.from(document.querySelectorAll('#gallery-grid .item-card'));
             
             showPage('gallery');
             setupSearch();
+
+            // Adiciona o listener para o seletor de ordenação
+            const sortSelect = document.getElementById('sort-select');
+            sortSelect.addEventListener('change', (e) => {
+                sortItems(e.target.value);
+            });
+
+            // Aplica a ordenação inicial (Mais Antigos)
+            sortItems('date-asc');
         });
     </script>
 </body>
